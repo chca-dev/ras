@@ -17,7 +17,7 @@ export type UpdateEntryState = {
   }
 }
 
-function createTextDocument(body: string) {
+const createTextDocument = (body: string) => {
   const lines = body.split('\n')
 
   return {
@@ -29,18 +29,18 @@ function createTextDocument(body: string) {
   }
 }
 
-export async function createEntryAction() {
+export const createEntryAction = async () => {
   const session = await requireSession()
   const entry = await createEntry(session.user.id)
 
   redirect(`/journal/${entry.id}/edit`)
 }
 
-export async function updateEntryAction(
+export const updateEntryAction = async (
   entryId: string,
   _previousState: UpdateEntryState,
   formData: FormData,
-): Promise<UpdateEntryState> {
+): Promise<UpdateEntryState> => {
   const session = await requireSession()
   const result = updateEntrySchema.safeParse({
     title: formData.get('title'),
@@ -75,7 +75,7 @@ export async function updateEntryAction(
   }
 }
 
-export async function deleteEntryAction(entryId: string) {
+export const deleteEntryAction = async (entryId: string) => {
   const session = await requireSession()
   const entry = await deleteEntry(session.user.id, entryId)
 

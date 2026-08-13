@@ -5,12 +5,12 @@ import { useState } from 'react'
 
 import { authClient } from '@/lib/auth-client'
 
-export function LogoutButton() {
+export const LogoutButton = () => {
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSignOut() {
+  const handleSignOut = async () => {
     setError(null)
     setIsSigningOut(true)
 
@@ -34,7 +34,7 @@ export function LogoutButton() {
   return (
     <div>
       <button
-        className="login-submit"
+        className='py-1 text-left font-sans text-sm text-muted-foreground transition hover:text-foreground disabled:opacity-60'
         type="button"
         disabled={isSigningOut}
         onClick={handleSignOut}
@@ -43,7 +43,7 @@ export function LogoutButton() {
       </button>
 
       {error ? (
-        <p className="login-error" role="alert">
+        <p className='mt-2 font-sans text-xs text-destructive' role='alert'>
           {error}
         </p>
       ) : null}

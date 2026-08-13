@@ -13,7 +13,7 @@ const bootstrapEnv = z
 
 process.env.AUTH_BOOTSTRAP_ENABLED = 'true'
 
-async function main() {
+const main = async () => {
   const [{ auth }, { db, postgresClient }, { user }] = await Promise.all([
     import('../src/lib/auth'),
     import('../src/db/client'),

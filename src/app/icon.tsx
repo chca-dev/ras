@@ -5,7 +5,7 @@ const iconSizes = {
   512: { width: 512, height: 512 },
 } as const
 
-export function generateImageMetadata() {
+export const generateImageMetadata = () => {
   return Object.entries(iconSizes).map(([id, size]) => ({
     id,
     size,
@@ -14,11 +14,11 @@ export function generateImageMetadata() {
   }))
 }
 
-export default async function Icon({
+const Icon = async ({
   id,
 }: {
   id: Promise<string | number>
-}) {
+}) => {
   const iconId = String(await id)
   const size = iconId === '192' ? iconSizes[192] : iconSizes[512]
 
@@ -47,3 +47,5 @@ export default async function Icon({
     size,
   )
 }
+
+export default Icon

@@ -1,7 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function EntryNotFound() {
+const EntryNotFound = () => {
   return (
     <main className="shell-page entry-not-found">
       <p className="shell-page-kicker">Introuvable</p>
@@ -17,3 +17,5 @@ export default function EntryNotFound() {
     </main>
   )
 }
+
+export default EntryNotFound

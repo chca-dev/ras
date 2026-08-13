@@ -1,6 +1,6 @@
 'use client'
 
-import { Archive, BookOpen, PenLine, Settings } from 'lucide-react'
+import { CalendarDays, PenLine, ScrollText, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
@@ -10,67 +10,121 @@ import { createEntryAction } from '@/app/(journal)/journal/actions'
 const navigationItems = [
   {
     href: '/journal',
-    label: 'Journal',
-    icon: BookOpen,
+    label: 'Chronologie',
+    icon: ScrollText,
   },
   {
     href: '/archives',
     label: 'Archives',
-    icon: Archive,
-  },
-  {
-    href: '/settings',
-    label: 'Réglages',
-    icon: Settings,
+    icon: CalendarDays,
   },
 ]
 
-function WriteButton() {
+const WriteButton = ({ compact = false }: { compact?: boolean }) => {
   const { pending } = useFormStatus()
 
   return (
     <button
-      className="app-navigation-write"
+      className={compact
+        ? '-mt-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition active:scale-95 glow-soft'
+        : 'ml-1 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110'}
       type="submit"
       disabled={pending}
     >
-      <PenLine aria-hidden="true" size={19} strokeWidth={1.75} />
-      <span>{pending ? 'Création…' : 'Écrire'}</span>
+      <PenLine aria-hidden='true' className={compact ? 'h-6 w-6' : 'h-4 w-4'} />
+      <span className={compact ? 'sr-only' : undefined}>
+        {pending ? 'Création…' : 'Écrire'}
+      </span>
     </button>
   )
 }
 
-export function AppNavigation() {
+export const AppNavigation = () => {
   const pathname = usePathname()
+  const settingsIsActive = pathname.startsWith('/settings')
 
   return (
-    <aside className="app-navigation" aria-label="Navigation principale">
-      <Link className="app-navigation-brand" href="/journal">
-        RAS.
-      </Link>
+    <header className='sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-md'>
+      <div className='mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6'>
+        <Link className='flex items-center gap-2 text-foreground transition hover:opacity-80' href='/journal'>
+          <span className='h-5 w-5 rounded-full border border-primary' aria-hidden='true' />
+          <span className='font-serif text-lg font-medium tracking-tight'>RAS.</span>
+        </Link>
 
-      <nav className="app-navigation-links">
-        {navigationItems.map(({ href, label, icon: Icon }) => {
-          const isActive =
-            pathname === href || pathname.startsWith(`${href}/`)
+        <div className='flex items-center gap-1'>
+        <nav className='mr-1 hidden items-center gap-1 md:flex' aria-label='Navigation principale'>
+          {navigationItems.map(({ href, label, icon: Icon }) => {
+            const isActive =
+              pathname === href || pathname.startsWith(`${href}/`)
 
-          return (
-            <Link
-              key={href}
-              className="app-navigation-link"
-              href={href}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <Icon aria-hidden="true" size={20} strokeWidth={1.75} />
-              <span>{label}</span>
-            </Link>
-          )
-        })}
+            return (
+              <Link
+                key={href}
+                className='inline-flex items-center gap-1.5 rounded-full px-3 py-2 font-sans text-sm text-muted-foreground transition hover:text-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
+                href={href}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <Icon aria-hidden="true" size={19} strokeWidth={1.75} />
+                <span>{label}</span>
+              </Link>
+            )
+          })}
+
+          <form action={createEntryAction}>
+            <WriteButton />
+          </form>
+
+          <Link
+            className='inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground aria-[current=page]:bg-secondary aria-[current=page]:text-foreground'
+            href="/settings"
+            aria-current={settingsIsActive ? 'page' : undefined}
+            aria-label="Réglages"
+          >
+            <Settings aria-hidden="true" size={21} strokeWidth={1.75} />
+          </Link>
+        </nav>
+        <Link
+          className='inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground aria-[current=page]:bg-secondary aria-[current=page]:text-foreground md:hidden'
+          href="/settings"
+          aria-current={settingsIsActive ? 'page' : undefined}
+          aria-label="Réglages"
+        >
+          <Settings aria-hidden="true" size={22} strokeWidth={1.75} />
+        </Link>
+        </div>
+      </div>
+
+      <nav className='fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-background/90 backdrop-blur-md md:hidden' aria-label='Navigation principale'>
+        <div className='mx-auto flex max-w-md items-center justify-around px-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2'>
+        {navigationItems.slice(0, 1).map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            className='flex flex-col items-center gap-1 px-3 py-1 font-sans text-[0.65rem] text-muted-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
+            href={href}
+            aria-current={pathname.startsWith(href) ? 'page' : undefined}
+          >
+            <Icon aria-hidden="true" size={21} strokeWidth={1.75} />
+            <span>{label}</span>
+          </Link>
+        ))}
+
+        <form className='grid justify-items-center' action={createEntryAction}>
+          <WriteButton compact />
+        </form>
+
+        {navigationItems.slice(1).map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            className='flex flex-col items-center gap-1 px-3 py-1 font-sans text-[0.65rem] text-muted-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
+            href={href}
+            aria-current={pathname.startsWith(href) ? 'page' : undefined}
+          >
+            <Icon aria-hidden="true" size={21} strokeWidth={1.75} />
+            <span>{label}</span>
+          </Link>
+        ))}
+        </div>
       </nav>
-
-      <form className="app-navigation-write-form" action={createEntryAction}>
-        <WriteButton />
-      </form>
-    </aside>
+    </header>
   )
 }

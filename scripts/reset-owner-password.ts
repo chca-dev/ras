@@ -18,7 +18,7 @@ const resetEnv = z
 
 delete process.env.RESET_OWNER_PASSWORD
 
-async function main() {
+const main = async () => {
   const [{ db, postgresClient }, { account, session, user }] =
     await Promise.all([
       import('../src/db/client'),

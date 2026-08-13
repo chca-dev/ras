@@ -27,6 +27,7 @@ const getCurrentParisMonth = () => {
     timeZone: 'Europe/Paris',
     year: 'numeric',
     month: 'numeric',
+    day: 'numeric',
   }).formatToParts(new Date())
 
   return {
@@ -107,78 +108,86 @@ const ArchivesPage = async ({
   }).format(new Date(selectedYear, selectedMonth - 1, 1))
 
   return (
-    <main className="shell-page archives-page">
-      <header className="shell-page-heading">
-        <p className="shell-page-kicker">Retrouver une entrée</p>
-        <h1>Archives</h1>
+    <main>
+      <header className='mb-6 flex items-end justify-between gap-4'>
+        <div>
+          <p className='font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground'>Archives</p>
+          <h1 className='mt-1 font-serif text-3xl font-medium tracking-tight text-foreground sm:text-4xl'>Retrouver un jour</h1>
+        </div>
+        <span className='rounded-full bg-primary px-3 py-1 font-sans text-sm text-primary-foreground'>{selectedYear}</span>
       </header>
 
-      <section className="archives-browser">
-        <div className="archives-toolbar">
-          <form className="archives-year-picker">
-            <label htmlFor="archives-year">Année</label>
-            <select
-              id="archives-year"
-              name="year"
-              defaultValue={selectedYear}
-              disabled={years.length === 0}
+      <section>
+        <div className='rounded-2xl border border-border bg-card p-4 sm:p-5'>
+          <div className='mb-4 flex items-center justify-between'>
+            <Link
+              href={`/archives?year=${previousMonth.year}&month=${previousMonth.month}`}
+              aria-label='Mois précédent'
+              className='inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground'
             >
-              {years.length > 0 ? (
-                <>
-                  {!years.some(({ year }) => year === selectedYear) ? (
-                    <option value={selectedYear}>{selectedYear} · 0 entrée</option>
-                  ) : null}
-                  {years.map(({ year, entryCount }) => (
-                    <option value={year} key={year}>
-                      {year} · {entryCount}{' '}
-                      {entryCount > 1 ? 'entrées' : 'entrée'}
-                    </option>
-                  ))}
-                </>
-              ) : (
-                <option value={selectedYear}>{selectedYear}</option>
-              )}
-            </select>
-            <input type="hidden" name="month" value={selectedMonth} />
-            <button type="submit" disabled={years.length === 0}>
-              Afficher
-            </button>
-          </form>
+              <ChevronLeft aria-hidden="true" size={20} strokeWidth={1.75} />
+            </Link>
+            <h2 className='font-serif text-xl font-medium capitalize text-foreground'>{monthLabel}</h2>
+            <Link
+              href={`/archives?year=${nextMonth.year}&month=${nextMonth.month}`}
+              aria-label='Mois suivant'
+              className='inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground'
+            >
+              <ChevronRight aria-hidden="true" size={20} strokeWidth={1.75} />
+            </Link>
+          </div>
 
-          <Link
-            className="archives-today-link"
-            href={`/archives?year=${currentMonth.year}&month=${currentMonth.month}&day=${currentMonth.day}`}
-          >
-            Aujourd’hui
-          </Link>
+          <ArchiveCalendar
+            year={selectedYear}
+            month={selectedMonth}
+            selectedDay={selectedDay}
+            occupiedDays={occupiedDays}
+          />
+
+          <footer className='mt-4 flex items-center justify-between border-t border-border/70 pt-3'>
+            <form className='flex items-center gap-2'>
+              <label className='sr-only' htmlFor='archives-year'>Année</label>
+              <select
+                id="archives-year"
+                name="year"
+                defaultValue={selectedYear}
+                disabled={years.length === 0}
+                className='rounded-full border border-border bg-card px-3 py-1 font-sans text-xs text-muted-foreground'
+              >
+                {years.length > 0 ? (
+                  <>
+                    {!years.some(({ year }) => year === selectedYear) ? (
+                      <option value={selectedYear}>{selectedYear} · 0 entrée</option>
+                    ) : null}
+                    {years.map(({ year, entryCount }) => (
+                      <option value={year} key={year}>
+                        {year} · {entryCount}{' '}
+                        {entryCount > 1 ? 'entrées' : 'entrée'}
+                      </option>
+                    ))}
+                  </>
+                ) : (
+                  <option value={selectedYear}>{selectedYear}</option>
+                )}
+              </select>
+              <input type="hidden" name="month" value={selectedMonth} />
+              <button className='rounded-full bg-primary px-3 py-1 font-sans text-xs text-primary-foreground disabled:opacity-50' type='submit' disabled={years.length === 0}>
+                Afficher
+              </button>
+            </form>
+
+            <Link
+              className='rounded-full border border-border px-3 py-1 font-sans text-xs text-muted-foreground transition hover:border-primary/30 hover:text-foreground'
+              href={`/archives?year=${currentMonth.year}&month=${currentMonth.month}&day=${currentMonth.day}`}
+            >
+              Aujourd’hui
+            </Link>
+          </footer>
         </div>
-
-        <div className="archives-month-heading">
-          <Link
-            href={`/archives?year=${previousMonth.year}&month=${previousMonth.month}`}
-            aria-label="Mois précédent"
-          >
-            <ChevronLeft aria-hidden="true" size={20} strokeWidth={1.75} />
-          </Link>
-          <h2>{monthLabel}</h2>
-          <Link
-            href={`/archives?year=${nextMonth.year}&month=${nextMonth.month}`}
-            aria-label="Mois suivant"
-          >
-            <ChevronRight aria-hidden="true" size={20} strokeWidth={1.75} />
-          </Link>
-        </div>
-
-        <ArchiveCalendar
-          year={selectedYear}
-          month={selectedMonth}
-          selectedDay={selectedDay}
-          occupiedDays={occupiedDays}
-        />
 
         {selectedDay && archiveEntries.length === 0 ? (
-          <section className="archives-results">
-            <header className="archives-results-heading">
+          <section className='mt-8'>
+            <header className='mb-4 flex items-center justify-between'>
               <h3>
                 {formatCivilDate(
                   `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`,
@@ -188,13 +197,13 @@ const ArchivesPage = async ({
                 Tout le mois
               </Link>
             </header>
-            <p className="archives-month-empty">Rien pour ce jour-ci.</p>
+            <p className='rounded-xl border border-dashed border-border py-10 text-center font-sans text-sm text-muted-foreground'>Rien pour ce jour-ci.</p>
           </section>
         ) : occupiedDays.length === 0 ? (
-          <p className="archives-month-empty">Rien pour ce mois-ci.</p>
+          <p className='mt-8 rounded-xl border border-dashed border-border py-10 text-center font-sans text-sm text-muted-foreground'>Rien pour ce mois-ci.</p>
         ) : (
-          <section className="archives-results">
-            <header className="archives-results-heading">
+          <section className='mt-8'>
+            <header className='mb-4 flex items-center justify-between'>
               <h3>
                 {selectedDay
                   ? formatCivilDate(
@@ -209,35 +218,20 @@ const ArchivesPage = async ({
               ) : null}
             </header>
 
-            <div className="journal-month-entries">
+            <ul className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
               {archiveEntries.map((entry) => {
                 const excerpt = entry.plainText.trim().replace(/\s+/g, ' ')
 
                 return (
-                  <article className="journal-entry-preview" key={entry.id}>
-                    <Link href={`/journal/${entry.id}`}>
-                      <time dateTime={entry.entryDate}>
-                        <span className="journal-entry-day">
-                          {formatCivilDayNumber(entry.entryDate)}
-                        </span>
-                        <span className="journal-entry-weekday">
-                          {formatCivilWeekday(entry.entryDate)}
-                        </span>
-                      </time>
-
-                      <div className="journal-entry-summary">
-                        {entry.title ? <h3>{entry.title}</h3> : null}
-                        <p>
-                          {excerpt
-                            ? `${excerpt.slice(0, 220)}${excerpt.length > 220 ? '…' : ''}`
-                            : 'Rien à signaler, donc.'}
-                        </p>
-                      </div>
+                  <li key={entry.id}>
+                    <Link href={`/journal/${entry.id}`} className='group flex aspect-square flex-col justify-between rounded-xl border border-border bg-secondary/50 p-3 transition hover:border-primary/30'>
+                      <span className='font-serif text-2xl font-medium text-foreground'>{formatCivilDayNumber(entry.entryDate)}</span>
+                      <span className='line-clamp-3 font-sans text-xs leading-relaxed text-muted-foreground'>{entry.title ?? excerpt ?? formatCivilWeekday(entry.entryDate)}</span>
                     </Link>
-                  </article>
+                  </li>
                 )
               })}
-            </div>
+            </ul>
           </section>
         )}
       </section>

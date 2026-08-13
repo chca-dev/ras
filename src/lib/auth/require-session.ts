@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 import { auth } from '@/lib/auth'
 
-export async function requireSession() {
+export const requireSession = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   })

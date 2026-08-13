@@ -1,15 +1,14 @@
 import { notFound } from 'next/navigation'
 
-import { DeleteEntryButton } from '@/components/entries/delete-entry-button'
 import { EntryForm } from '@/components/entries/entry-form'
 import { requireSession } from '@/lib/auth/require-session'
 import { getEntryById } from '@/lib/entries/dal'
 
-export default async function EditEntryPage({
+const EditEntryPage = async ({
   params,
 }: {
   params: Promise<{ entryId: string }>
-}) {
+}) => {
   const [{ entryId }, session] = await Promise.all([
     params,
     requireSession(),
@@ -21,7 +20,7 @@ export default async function EditEntryPage({
   }
 
   return (
-    <main className="shell-page entry-editor-page">
+    <main>
       <EntryForm
         entry={{
           id: entry.id,
@@ -30,7 +29,8 @@ export default async function EditEntryPage({
           plainText: entry.plainText,
         }}
       />
-      <DeleteEntryButton entryId={entry.id} />
     </main>
   )
 }
+
+export default EditEntryPage

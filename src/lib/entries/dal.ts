@@ -19,11 +19,11 @@ const entriesCursorSchema = z.object({
   id: z.uuid(),
 })
 
-function encodeEntriesCursor(entry: {
+const encodeEntriesCursor = (entry: {
   entryDate: string
   createdAt: Date
   id: string
-}) {
+}) => {
   return Buffer.from(
     JSON.stringify({
       entryDate: entry.entryDate,
@@ -33,7 +33,7 @@ function encodeEntriesCursor(entry: {
   ).toString('base64url')
 }
 
-function decodeEntriesCursor(cursor: string) {
+const decodeEntriesCursor = (cursor: string) => {
   try {
     const value = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'))
     const result = entriesCursorSchema.safeParse(value)
@@ -50,7 +50,7 @@ function decodeEntriesCursor(cursor: string) {
   }
 }
 
-function getTodayInParis() {
+const getTodayInParis = () => {
   const dateParts = new Intl.DateTimeFormat('fr-CA', {
     timeZone: 'Europe/Paris',
     year: 'numeric',
@@ -69,7 +69,7 @@ function getTodayInParis() {
   return `${year}-${month}-${day}`
 }
 
-export async function createEntry(ownerId: string) {
+export const createEntry = async (ownerId: string) => {
   const [entry] = await db
     .insert(entries)
     .values({
@@ -83,7 +83,7 @@ export async function createEntry(ownerId: string) {
   return entry
 }
 
-export async function getEntryById(ownerId: string, entryId: string) {
+export const getEntryById = async (ownerId: string, entryId: string) => {
   const [entry] = await db
     .select()
     .from(entries)
@@ -93,17 +93,7 @@ export async function getEntryById(ownerId: string, entryId: string) {
   return entry ?? null
 }
 
-export async function hasEntries(ownerId: string) {
-  const [entry] = await db
-    .select({ id: entries.id })
-    .from(entries)
-    .where(eq(entries.ownerId, ownerId))
-    .limit(1)
-
-  return Boolean(entry)
-}
-
-export async function listEntriesPage(ownerId: string, cursor?: string) {
+export const listEntriesPage = async (ownerId: string, cursor?: string) => {
   const decodedCursor = cursor ? decodeEntriesCursor(cursor) : null
   const cursorCondition = decodedCursor
     ? or(
@@ -154,11 +144,11 @@ type UpdateEntryValues = {
   plainText: string
 }
 
-export async function updateEntry(
+export const updateEntry = async (
   ownerId: string,
   entryId: string,
   values: UpdateEntryValues,
-) {
+) => {
   const [entry] = await db
     .update(entries)
     .set(values)
@@ -168,7 +158,7 @@ export async function updateEntry(
   return entry ?? null
 }
 
-export async function deleteEntry(ownerId: string, entryId: string) {
+export const deleteEntry = async (ownerId: string, entryId: string) => {
   const [entry] = await db
     .delete(entries)
     .where(and(eq(entries.id, entryId), eq(entries.ownerId, ownerId)))

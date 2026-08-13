@@ -1,21 +1,15 @@
 import type { Metadata, Viewport } from 'next'
-import { DM_Sans, Fraunces, Source_Serif_4 } from 'next/font/google'
-import './globals.css'
+import { Fraunces, Instrument_Sans } from 'next/font/google'
+import './design2.css'
 
-const interfaceFont = DM_Sans({
-  variable: '--font-interface',
+const interfaceFont = Instrument_Sans({
+  variable: '--font-instrument-sans',
   subsets: ['latin'],
   display: 'swap',
 })
 
 const displayFont = Fraunces({
-  variable: '--font-display',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
-const readingFont = Source_Serif_4({
-  variable: '--font-reading',
+  variable: '--font-fraunces',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -43,18 +37,20 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 }
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode
-}>) {
+}>) => {
   return (
     <html lang="fr">
       <body
-        className={`${interfaceFont.variable} ${displayFont.variable} ${readingFont.variable}`}
+        className={`${interfaceFont.variable} ${displayFont.variable}`}
       >
         {children}
       </body>
     </html>
   )
 }
+
+export default RootLayout

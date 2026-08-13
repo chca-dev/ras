@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-function isValidCivilDate(value: string) {
+const isValidCivilDate = (value: string) => {
   const [year, month, day] = value.split('-').map(Number)
 
   if (!year || !month || !day) {
