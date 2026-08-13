@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/app-shell/app-shell'
 import { requireSession } from '@/lib/auth/require-session'
 
 export default async function JournalLayout({
@@ -7,5 +8,5 @@ export default async function JournalLayout({
 }>) {
   await requireSession()
 
-  return children
+  return <AppShell>{children}</AppShell>
 }
