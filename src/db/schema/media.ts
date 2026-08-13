@@ -9,6 +9,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
+import { user } from './auth'
 import { entries } from './entries'
 
 export const mediaStatus = pgEnum('media_status', [
@@ -21,7 +22,9 @@ export const media = pgTable(
   'media',
   {
     id: uuid('id').primaryKey(),
-    ownerId: text('owner_id').notNull(),
+    ownerId: text('owner_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
     entryId: uuid('entry_id')
       .notNull()
       .references(() => entries.id, { onDelete: 'cascade' }),

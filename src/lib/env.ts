@@ -7,6 +7,10 @@ const serverEnvSchema = z.object({
   MEDIA_ROOT: z.string().min(1),
   APP_TIME_ZONE: z.string().default('Europe/Paris'),
   NEXT_PUBLIC_APP_NAME: z.string().default('RAS.'),
+  AUTH_BOOTSTRAP_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
 })
 
 export const env = serverEnvSchema.parse({
@@ -16,4 +20,5 @@ export const env = serverEnvSchema.parse({
   MEDIA_ROOT: process.env.MEDIA_ROOT,
   APP_TIME_ZONE: process.env.APP_TIME_ZONE,
   NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+  AUTH_BOOTSTRAP_ENABLED: process.env.AUTH_BOOTSTRAP_ENABLED,
 })

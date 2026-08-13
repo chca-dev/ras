@@ -10,11 +10,15 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core'
 
+import { user } from './auth'
+
 export const entries = pgTable(
   'entries',
   {
     id: uuid('id').primaryKey(),
-    ownerId: text('owner_id').notNull(),
+    ownerId: text('owner_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 160 }),
     entryDate: date('entry_date', { mode: 'string' }).notNull(),
     content: jsonb('content').$type<Record<string, unknown>>().notNull(),

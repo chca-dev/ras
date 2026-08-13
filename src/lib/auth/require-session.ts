@@ -3,10 +3,14 @@ import { redirect } from 'next/navigation'
 
 import { auth } from '@/lib/auth'
 
-export default async function Home() {
+export async function requireSession() {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
 
-  redirect(session ? '/journal' : '/login')
+  if (!session) {
+    redirect('/login')
+  }
+
+  return session
 }
