@@ -399,6 +399,291 @@ select {
   outline-offset: 3px;
 }
 
+.journal-timeline {
+  display: grid;
+  gap: clamp(4rem, 12vw, 7rem);
+  margin-top: clamp(3rem, 9vw, 5.5rem);
+}
+
+.journal-month {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.journal-month > h2 {
+  margin: 0;
+  color: var(--color-forest);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.2rem, 10vw, 3.75rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  text-transform: capitalize;
+}
+
+.journal-month-entries {
+  border-top: 1px solid var(--color-stone);
+}
+
+.journal-entry-preview {
+  border-bottom: 1px solid var(--color-stone);
+}
+
+.journal-entry-preview > a {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  gap: clamp(1rem, 5vw, 2rem);
+  padding-block: clamp(1.5rem, 5vw, 2.25rem);
+  color: inherit;
+  text-decoration: none;
+}
+
+.journal-entry-preview > a:hover .journal-entry-summary h3,
+.journal-entry-preview > a:hover .journal-entry-day {
+  color: var(--color-terracotta);
+}
+
+.journal-entry-preview > a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-sage) 70%, transparent);
+  outline-offset: 4px;
+}
+
+.journal-entry-preview time {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+}
+
+.journal-entry-day {
+  color: var(--color-forest);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.8rem, 13vw, 4.25rem);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  line-height: 0.8;
+  transition: color 140ms ease;
+}
+
+.journal-entry-weekday {
+  margin-top: 0.65rem;
+  color: color-mix(in srgb, var(--color-ink) 58%, transparent);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journal-entry-summary {
+  min-width: 0;
+}
+
+.journal-entry-summary h3 {
+  margin: 0 0 0.55rem;
+  overflow-wrap: anywhere;
+  font-family: var(--font-reading), Georgia, serif;
+  font-size: clamp(1.2rem, 4.5vw, 1.55rem);
+  font-weight: 600;
+  line-height: 1.2;
+  transition: color 140ms ease;
+}
+
+.journal-entry-summary p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  font-family: var(--font-reading), Georgia, serif;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.journal-pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.journal-pagination a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  color: var(--color-forest);
+  font-size: 0.85rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.journal-pagination a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-sage) 70%, transparent);
+  outline-offset: 3px;
+}
+
+.archives-browser {
+  display: grid;
+  gap: clamp(2rem, 7vw, 3.5rem);
+  margin-top: clamp(2.5rem, 8vw, 4.5rem);
+}
+
+.archives-year-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.archives-year-picker label {
+  grid-column: 1 / -1;
+  color: var(--color-forest);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.archives-year-picker select,
+.archives-year-picker button {
+  min-height: 2.9rem;
+  border-radius: 0.4rem;
+  font-weight: 650;
+}
+
+.archives-year-picker select {
+  min-width: 0;
+  padding-inline: 0.8rem;
+  border: 1px solid var(--color-stone);
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.archives-year-picker button {
+  padding-inline: 1rem;
+  border: 1px solid var(--color-forest);
+  background: transparent;
+  color: var(--color-forest);
+  cursor: pointer;
+}
+
+.archives-year-picker select:focus-visible,
+.archives-year-picker button:focus-visible,
+.archives-month-heading a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-sage) 70%, transparent);
+  outline-offset: 3px;
+}
+
+.archives-year-picker select:disabled,
+.archives-year-picker button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.archives-month-heading {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.archives-month-heading h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 9vw, 3.25rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.archives-month-heading a {
+  display: inline-grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid var(--color-stone);
+  border-radius: 50%;
+  color: var(--color-forest);
+}
+
+.archive-calendar {
+  min-width: 0;
+}
+
+.archive-calendar-weekdays,
+.archive-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.archive-calendar-weekdays {
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--color-stone);
+}
+
+.archive-calendar-weekdays span {
+  color: color-mix(in srgb, var(--color-ink) 54%, transparent);
+  font-size: clamp(0.58rem, 2.5vw, 0.7rem);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.archive-calendar-grid {
+  border-bottom: 1px solid var(--color-stone);
+}
+
+.archive-calendar-day {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: clamp(3.25rem, 14vw, 5rem);
+  place-items: center;
+  border-right: 1px solid color-mix(in srgb, var(--color-stone) 55%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-stone) 55%, transparent);
+  font-family: var(--font-reading), Georgia, serif;
+}
+
+.archive-calendar-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.archive-calendar-day[data-outside-month] {
+  color: color-mix(in srgb, var(--color-ink) 22%, transparent);
+}
+
+.archive-calendar-day[data-has-entries] {
+  background: var(--color-surface);
+  color: var(--color-forest);
+  font-weight: 650;
+}
+
+.archive-calendar-count {
+  position: absolute;
+  right: 0.25rem;
+  bottom: 0.25rem;
+  display: grid;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-terracotta);
+  color: var(--color-surface);
+  font-family: var(--font-interface), system-ui, sans-serif;
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+.archives-month-empty {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+  font-family: var(--font-reading), Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
 .entry-not-found {
   display: grid;
   justify-items: start;
@@ -879,6 +1164,11 @@ select {
     padding-block: 4.5rem;
   }
 
+  .archives-year-picker {
+    grid-template-columns: minmax(14rem, 20rem) auto;
+    justify-content: start;
+  }
+
   .settings-row {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -895,7 +1185,9 @@ select {
   .login-field input,
   .login-submit,
   .app-navigation-write,
-  .entry-save-button {
+  .entry-save-button,
+  .journal-entry-day,
+  .journal-entry-summary h3 {
     transition: none;
   }
 }

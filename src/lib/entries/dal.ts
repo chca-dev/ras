@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq, lt, or } from 'drizzle-orm'
+import { z } from 'zod'
 
 import { db } from '@/db/client'
 import { entries } from '@/db/schema'
@@ -8,6 +9,45 @@ import { entries } from '@/db/schema'
 const emptyDocument = {
   type: 'doc',
   content: [{ type: 'paragraph' }],
+}
+
+const entriesPageSize = 10
+
+const entriesCursorSchema = z.object({
+  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  createdAt: z.iso.datetime(),
+  id: z.uuid(),
+})
+
+function encodeEntriesCursor(entry: {
+  entryDate: string
+  createdAt: Date
+  id: string
+}) {
+  return Buffer.from(
+    JSON.stringify({
+      entryDate: entry.entryDate,
+      createdAt: entry.createdAt.toISOString(),
+      id: entry.id,
+    }),
+  ).toString('base64url')
+}
+
+function decodeEntriesCursor(cursor: string) {
+  try {
+    const value = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'))
+    const result = entriesCursorSchema.safeParse(value)
+
+    return result.success
+      ? {
+          entryDate: result.data.entryDate,
+          createdAt: new Date(result.data.createdAt),
+          id: result.data.id,
+        }
+      : null
+  } catch {
+    return null
+  }
 }
 
 function getTodayInParis() {
@@ -61,6 +101,50 @@ export async function hasEntries(ownerId: string) {
     .limit(1)
 
   return Boolean(entry)
+}
+
+export async function listEntriesPage(ownerId: string, cursor?: string) {
+  const decodedCursor = cursor ? decodeEntriesCursor(cursor) : null
+  const cursorCondition = decodedCursor
+    ? or(
+        lt(entries.entryDate, decodedCursor.entryDate),
+        and(
+          eq(entries.entryDate, decodedCursor.entryDate),
+          lt(entries.createdAt, decodedCursor.createdAt),
+        ),
+        and(
+          eq(entries.entryDate, decodedCursor.entryDate),
+          eq(entries.createdAt, decodedCursor.createdAt),
+          lt(entries.id, decodedCursor.id),
+        ),
+      )
+    : undefined
+
+  const rows = await db
+    .select()
+    .from(entries)
+    .where(
+      cursorCondition
+        ? and(eq(entries.ownerId, ownerId), cursorCondition)
+        : eq(entries.ownerId, ownerId),
+    )
+    .orderBy(
+      desc(entries.entryDate),
+      desc(entries.createdAt),
+      desc(entries.id),
+    )
+    .limit(entriesPageSize + 1)
+
+  const pageEntries = rows.slice(0, entriesPageSize)
+  const lastEntry = pageEntries.at(-1)
+
+  return {
+    entries: pageEntries,
+    nextCursor:
+      rows.length > entriesPageSize && lastEntry
+        ? encodeEntriesCursor(lastEntry)
+        : null,
+  }
 }
 
 type UpdateEntryValues = {
