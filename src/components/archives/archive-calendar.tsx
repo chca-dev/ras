@@ -8,10 +8,12 @@ import {
   startOfWeek,
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import Link from 'next/link'
 
 type ArchiveCalendarProps = {
   year: number
   month: number
+  selectedDay: number | null
   occupiedDays: Array<{
     entryDate: string
     entryCount: number
@@ -20,11 +22,12 @@ type ArchiveCalendarProps = {
 
 const weekdayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
-export function ArchiveCalendar({
+export const ArchiveCalendar = ({
   year,
   month,
+  selectedDay,
   occupiedDays,
-}: ArchiveCalendarProps) {
+}: ArchiveCalendarProps) => {
   const monthDate = new Date(year, month - 1, 1)
   const calendarStart = startOfWeek(startOfMonth(monthDate), {
     weekStartsOn: 1,
@@ -53,24 +56,34 @@ export function ArchiveCalendar({
           const dateKey = format(date, 'yyyy-MM-dd')
           const entryCount = entryCounts.get(dateKey) ?? 0
           const belongsToMonth = isSameMonth(date, monthDate)
+          const dayNumber = Number(format(date, 'd'))
+          const isSelected = belongsToMonth && selectedDay === dayNumber
+          const fullDateLabel = format(date, 'EEEE d MMMM yyyy', {
+            locale: fr,
+          })
 
           return (
             <div
               className="archive-calendar-day"
               data-outside-month={!belongsToMonth || undefined}
               data-has-entries={entryCount > 0 || undefined}
+              data-selected={isSelected || undefined}
               key={dateKey}
-              aria-label={format(date, 'EEEE d MMMM yyyy', { locale: fr })}
             >
-              <time dateTime={dateKey}>{format(date, 'd')}</time>
-              {entryCount > 0 ? (
-                <span
-                  className="archive-calendar-count"
-                  aria-label={`${entryCount} ${entryCount > 1 ? 'entrées' : 'entrée'}`}
+              {belongsToMonth && entryCount > 0 ? (
+                <Link
+                  href={`/archives?year=${year}&month=${month}&day=${dayNumber}`}
+                  aria-current={isSelected ? 'date' : undefined}
+                  aria-label={`${fullDateLabel}, ${entryCount} ${entryCount > 1 ? 'entrées' : 'entrée'}`}
                 >
-                  {entryCount}
-                </span>
-              ) : null}
+                  <time dateTime={dateKey}>{dayNumber}</time>
+                  <span className="archive-calendar-count">{entryCount}</span>
+                </Link>
+              ) : (
+                <time dateTime={dateKey} aria-label={fullDateLabel}>
+                  {dayNumber}
+                </time>
+              )}
             </div>
           )
         })}

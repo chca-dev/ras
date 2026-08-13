@@ -3,11 +3,11 @@ import { and, asc, desc, eq, gte, lt, sql } from 'drizzle-orm'
 import { db } from '@/db/client'
 import { entries } from '@/db/schema'
 
-function formatMonthStart(year: number, month: number) {
+const formatMonthStart = (year: number, month: number) => {
   return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-01`
 }
 
-function getMonthRange(year: number, month: number) {
+const getMonthRange = (year: number, month: number) => {
   if (!Number.isInteger(year) || year < 1 || year > 9999) {
     throw new RangeError('L’année est invalide')
   }
@@ -25,7 +25,25 @@ function getMonthRange(year: number, month: number) {
   }
 }
 
-export async function listArchiveYears(ownerId: string) {
+const formatCivilDay = (year: number, month: number, day: number) => {
+  if (!Number.isInteger(day) || day < 1 || day > 31) {
+    throw new RangeError('Le jour est invalide')
+  }
+
+  const date = new Date(Date.UTC(year, month - 1, day))
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    throw new RangeError('Le jour est invalide')
+  }
+
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+export const listArchiveYears = async (ownerId: string) => {
   const year = sql<number>`extract(year from ${entries.entryDate})::int`
 
   return db
@@ -39,11 +57,11 @@ export async function listArchiveYears(ownerId: string) {
     .orderBy(desc(year))
 }
 
-export async function listArchiveMonthDays(
+export const listArchiveMonthDays = async (
   ownerId: string,
   year: number,
   month: number,
-) {
+) => {
   const range = getMonthRange(year, month)
 
   return db
@@ -61,4 +79,29 @@ export async function listArchiveMonthDays(
     )
     .groupBy(entries.entryDate)
     .orderBy(asc(entries.entryDate))
+}
+
+export const listArchiveEntries = async (
+  ownerId: string,
+  year: number,
+  month: number,
+  day?: number,
+) => {
+  const range = getMonthRange(year, month)
+  const dateCondition = day
+    ? eq(entries.entryDate, formatCivilDay(year, month, day))
+    : and(
+        gte(entries.entryDate, range.start),
+        lt(entries.entryDate, range.end),
+      )
+
+  return db
+    .select()
+    .from(entries)
+    .where(and(eq(entries.ownerId, ownerId), dateCondition))
+    .orderBy(
+      desc(entries.entryDate),
+      desc(entries.createdAt),
+      desc(entries.id),
+    )
 }
