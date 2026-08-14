@@ -6,27 +6,24 @@ import { notFound, redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/require-session'
 import { createEntry, deleteEntry, updateEntry } from '@/lib/entries/dal'
 import { updateEntrySchema } from '@/lib/entries/validation'
+import { getTiptapPlainText, parseSerializedTiptapDocument } from '@/lib/tiptap/document'
 
 export type UpdateEntryState = {
-  status: 'idle' | 'success' | 'error'
+  status: 'success' | 'error' | 'conflict'
   message: string
+  revision?: number
   fieldErrors?: {
     title?: string[]
     entryDate?: string[]
-    body?: string[]
+    content?: string[]
   }
 }
 
-const createTextDocument = (body: string) => {
-  const lines = body.split('\n')
-
-  return {
-    type: 'doc',
-    content: lines.map((line) => ({
-      type: 'paragraph',
-      ...(line ? { content: [{ type: 'text', text: line }] } : {}),
-    })),
-  }
+export type UpdateEntryPayload = {
+  title: string
+  entryDate: string
+  content: string
+  revision: number
 }
 
 export const createEntryAction = async () => {
@@ -38,15 +35,10 @@ export const createEntryAction = async () => {
 
 export const updateEntryAction = async (
   entryId: string,
-  _previousState: UpdateEntryState,
-  formData: FormData,
+  payload: UpdateEntryPayload,
 ): Promise<UpdateEntryState> => {
   const session = await requireSession()
-  const result = updateEntrySchema.safeParse({
-    title: formData.get('title'),
-    entryDate: formData.get('entryDate'),
-    body: formData.get('body'),
-  })
+  const result = updateEntrySchema.safeParse(payload)
 
   if (!result.success) {
     return {
@@ -56,22 +48,39 @@ export const updateEntryAction = async (
     }
   }
 
+  const content = parseSerializedTiptapDocument(result.data.content)
+
+  if (!content) {
+    return {
+      status: 'error',
+      message: 'Le contenu de l’entrée est invalide.',
+      fieldErrors: { content: ['Le contenu de l’entrée est invalide.'] },
+    }
+  }
+
   const entry = await updateEntry(session.user.id, entryId, {
     title: result.data.title || null,
     entryDate: result.data.entryDate,
-    content: createTextDocument(result.data.body),
-    plainText: result.data.body,
+    content,
+    plainText: getTiptapPlainText(content),
+    expectedRevision: result.data.revision,
   })
 
   if (!entry) {
-    notFound()
+    return {
+      status: 'conflict',
+      message: 'Cette entrée a changé dans un autre onglet. Recharge la page.',
+    }
   }
 
-  revalidatePath(`/journal/${entryId}/edit`)
+  revalidatePath('/journal')
+  revalidatePath('/archives')
+  revalidatePath(`/journal/${entryId}`)
 
   return {
     status: 'success',
     message: 'Enregistré',
+    revision: entry.revision,
   }
 }
 

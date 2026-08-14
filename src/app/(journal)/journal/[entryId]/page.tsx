@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { DeleteEntryButton } from '@/components/entries/delete-entry-button'
+import { RichTextRenderer } from '@/components/entries/rich-text-renderer'
 import { DrawnSeparator, TimeMark } from '@/components/journal/decor'
 import { requireSession } from '@/lib/auth/require-session'
 import {
@@ -13,6 +14,7 @@ import {
   formatCivilYear,
 } from '@/lib/dates/format-civil-date'
 import { getEntryById } from '@/lib/entries/dal'
+import { createDocumentFromPlainText, parseTiptapDocument } from '@/lib/tiptap/document'
 
 const formatEntryTime = (date: Date) => {
   return new Intl.DateTimeFormat('fr-FR', {
@@ -40,7 +42,7 @@ const EntryPage = async ({
     notFound()
   }
 
-  const paragraphs = entry.plainText.split('\n')
+  const document = parseTiptapDocument(entry.content) ?? createDocumentFromPlainText(entry.plainText)
   const hour = Number(new Intl.DateTimeFormat('fr-FR', {
     timeZone: 'Europe/Paris',
     hour: '2-digit',
@@ -80,15 +82,11 @@ const EntryPage = async ({
           {entry.title ? <h1 className='mt-5 font-serif text-3xl font-medium leading-tight text-foreground text-balance sm:text-4xl'>{entry.title}</h1> : null}
         </header>
 
-        <div className='flex flex-col gap-6'>
-          {entry.plainText ? (
-            paragraphs.map((paragraph, index) => (
-              <p key={`${index}-${paragraph}`} className='font-serif text-[1.15rem] leading-[1.75] text-foreground/90 text-pretty'>{paragraph || '\u00a0'}</p>
-            ))
-          ) : (
-            <p className='font-serif text-[1.15rem] italic text-muted-foreground'>Rien à signaler, donc.</p>
-          )}
-        </div>
+        {entry.plainText ? (
+          <RichTextRenderer content={document.content} />
+        ) : (
+          <p className='font-serif text-[1.15rem] italic text-muted-foreground'>Rien à signaler, donc.</p>
+        )}
 
         <footer className='mb-4 mt-12 flex flex-col items-center gap-4'>
           <DrawnSeparator />

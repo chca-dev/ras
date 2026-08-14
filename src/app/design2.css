@@ -110,6 +110,105 @@
   field-sizing: content;
 }
 
+.tiptap-editor,
+.journal-rich-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: color-mix(in oklch, var(--foreground) 90%, transparent);
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.75;
+}
+
+.tiptap-editor {
+  min-height: 16rem;
+  outline: none;
+}
+
+.tiptap-editor > *:first-child,
+.journal-rich-text > *:first-child {
+  margin-top: 0;
+}
+
+.tiptap-editor p:first-child:last-child:has(br.ProseMirror-trailingBreak)::before {
+  height: 0;
+  color: var(--muted-foreground);
+  content: 'Vas-y, raconte.';
+  float: left;
+  pointer-events: none;
+}
+
+.tiptap-editor h2,
+.journal-rich-text h2 {
+  margin-top: 0.5rem;
+  color: var(--foreground);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.tiptap-editor h3,
+.journal-rich-text h3 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.tiptap-editor blockquote,
+.journal-rich-text blockquote {
+  border-left: 2px solid color-mix(in oklch, var(--primary) 40%, transparent);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  color: color-mix(in oklch, var(--foreground) 80%, transparent);
+  font-size: 1.2rem;
+  font-style: italic;
+}
+
+.tiptap-editor ul,
+.tiptap-editor ol,
+.journal-rich-text ul,
+.journal-rich-text ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.5rem;
+}
+
+.tiptap-editor ul,
+.journal-rich-text ul {
+  list-style: disc;
+}
+
+.tiptap-editor ol,
+.journal-rich-text ol {
+  list-style: decimal;
+}
+
+.tiptap-editor li,
+.journal-rich-text li {
+  padding-left: 0.25rem;
+}
+
+.tiptap-editor li p,
+.journal-rich-text li p {
+  margin: 0;
+}
+
+.tiptap-editor a,
+.journal-rich-text a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--primary) 40%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.tiptap-editor strong,
+.journal-rich-text strong {
+  font-weight: 650;
+}
+
 dialog::backdrop {
   background: oklch(0.26 0.018 150 / 0.2);
   backdrop-filter: blur(2px);

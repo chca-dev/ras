@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 
-import { and, desc, eq, lt, or } from 'drizzle-orm'
+import { and, desc, eq, lt, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '@/db/client'
@@ -142,6 +142,7 @@ type UpdateEntryValues = {
   entryDate: string
   content: Record<string, unknown>
   plainText: string
+  expectedRevision: number
 }
 
 export const updateEntry = async (
@@ -149,10 +150,20 @@ export const updateEntry = async (
   entryId: string,
   values: UpdateEntryValues,
 ) => {
+  const { expectedRevision, ...entryValues } = values
   const [entry] = await db
     .update(entries)
-    .set(values)
-    .where(and(eq(entries.id, entryId), eq(entries.ownerId, ownerId)))
+    .set({
+      ...entryValues,
+      revision: sql`${entries.revision} + 1`,
+    })
+    .where(
+      and(
+        eq(entries.id, entryId),
+        eq(entries.ownerId, ownerId),
+        eq(entries.revision, expectedRevision),
+      ),
+    )
     .returning()
 
   return entry ?? null

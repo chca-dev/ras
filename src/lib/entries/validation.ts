@@ -22,5 +22,6 @@ export const updateEntrySchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'La date est invalide.')
     .refine(isValidCivilDate, 'La date est invalide.'),
-  body: z.string(),
+  content: z.string().max(500_000, 'Le contenu est trop volumineux.'),
+  revision: z.number().int().positive(),
 })
