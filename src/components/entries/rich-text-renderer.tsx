@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react'
 
-import type { TiptapMark, TiptapNode } from '@/lib/tiptap/document'
+import {
+  parsePhotoGroupAttrs,
+  type TiptapMark,
+  type TiptapNode,
+} from '@/lib/tiptap/document'
 
 const applyMarks = (content: ReactNode, marks: TiptapMark[] = []) => marks.reduce<ReactNode>((markedContent, mark, index) => {
   if (mark.type === 'bold') return <strong key={index}>{markedContent}</strong>
@@ -12,11 +16,45 @@ const applyMarks = (content: ReactNode, marks: TiptapMark[] = []) => marks.reduc
   return markedContent
 }, content)
 
+const renderPhotoGroup = (node: TiptapNode, key: string) => {
+  const attrs = parsePhotoGroupAttrs(node.attrs)
+
+  if (!attrs) return null
+
+  return (
+    <div key={key} className='photo-group-grid'>
+      {attrs.items.map((item) => (
+        <figure
+          key={item.mediaId}
+          style={{ gridColumn: `span ${item.span}` }}
+          className='min-w-0'
+        >
+          <div className='photo-group-frame'>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/media/${item.mediaId}/display`}
+              alt={item.caption ?? ''}
+              loading='lazy'
+              className='block h-auto w-full'
+            />
+          </div>
+          {item.caption ? (
+            <figcaption className='photo-group-caption'>
+              {item.caption}
+            </figcaption>
+          ) : null}
+        </figure>
+      ))}
+    </div>
+  )
+}
+
 const renderNodes = (nodes: TiptapNode[] = []): ReactNode => nodes.map((node, index) => {
   const key = `${node.type}-${index}`
 
   if (node.type === 'text') return <span key={key}>{applyMarks(node.text ?? '', node.marks)}</span>
   if (node.type === 'hardBreak') return <br key={key} />
+  if (node.type === 'photoGroup') return renderPhotoGroup(node, key)
 
   const children = renderNodes(node.content)
   if (node.type === 'paragraph') return <p key={key}>{node.content?.length ? children : '\u00a0'}</p>

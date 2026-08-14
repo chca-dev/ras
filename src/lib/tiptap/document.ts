@@ -8,6 +8,7 @@ const allowedNodeTypes = new Set([
   'bulletList',
   'orderedList',
   'listItem',
+  'photoGroup',
   'hardBreak',
   'text',
 ])
@@ -35,6 +36,32 @@ export type TiptapNode = {
 export type TiptapDocument = TiptapNode & {
   type: 'doc'
   content: TiptapNode[]
+}
+
+export type PhotoGroupItem = {
+  mediaId: string
+  span: 2 | 3 | 4 | 6
+  ratio: 'natural'
+  caption?: string
+}
+
+export type PhotoGroupAttrs = {
+  items: PhotoGroupItem[]
+}
+
+const photoGroupAttrsSchema = z.object({
+  items: z.array(z.object({
+    mediaId: z.uuid(),
+    span: z.union([z.literal(2), z.literal(3), z.literal(4), z.literal(6)]),
+    ratio: z.literal('natural'),
+    caption: z.string().trim().max(500).optional(),
+  }).strict()).min(1).max(6),
+}).strict()
+
+export const parsePhotoGroupAttrs = (value: unknown): PhotoGroupAttrs | null => {
+  const result = photoGroupAttrsSchema.safeParse(value)
+
+  return result.success ? result.data : null
 }
 
 const rawNodeSchema: z.ZodType<TiptapNode> = z.lazy(() =>
@@ -71,10 +98,29 @@ const hasSafeLinks = (node: TiptapNode): boolean => {
   return marksAreSafe && (node.content ?? []).every(hasSafeLinks)
 }
 
+const hasValidPhotoGroups = (node: TiptapNode): boolean => {
+  if (node.type === 'photoGroup') {
+    return (
+      parsePhotoGroupAttrs(node.attrs) !== null &&
+      !node.content?.length &&
+      !node.marks?.length &&
+      !node.text
+    )
+  }
+
+  return (node.content ?? []).every(hasValidPhotoGroups)
+}
+
 export const parseTiptapDocument = (value: unknown): TiptapDocument | null => {
   const result = rawNodeSchema.safeParse(value)
 
-  if (!result.success || result.data.type !== 'doc' || !result.data.content || !hasSafeLinks(result.data)) {
+  if (
+    !result.success ||
+    result.data.type !== 'doc' ||
+    !result.data.content ||
+    !hasSafeLinks(result.data) ||
+    !hasValidPhotoGroups(result.data)
+  ) {
     return null
   }
 
@@ -108,3 +154,21 @@ const getNodeText = (node: TiptapNode): string => {
 export const getTiptapPlainText = (document: TiptapDocument) => getNodeText(document)
   .replace(/\n{3,}/g, '\n\n')
   .trim()
+
+export const getTiptapMediaIds = (document: TiptapDocument) => {
+  const mediaIds = new Set<string>()
+
+  const visitNode = (node: TiptapNode) => {
+    if (node.type === 'photoGroup') {
+      const attrs = parsePhotoGroupAttrs(node.attrs)
+
+      attrs?.items.forEach(({ mediaId }) => mediaIds.add(mediaId))
+    }
+
+    node.content?.forEach(visitNode)
+  }
+
+  visitNode(document)
+
+  return [...mediaIds]
+}

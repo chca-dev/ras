@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft, Check, CircleAlert } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { type SubmitEvent, useState } from 'react'
@@ -52,30 +52,43 @@ export const EntryForm = ({ entry }: EntryFormProps) => {
     }
   }
 
+  const renderEditorActions = () => (
+    <>
+      <p
+        className={`sr-only items-center gap-1.5 font-sans text-xs md:not-sr-only md:inline-flex ${isError ? 'text-destructive' : status === 'saved' ? 'text-primary' : 'text-muted-foreground'}`}
+        role={isError ? 'alert' : 'status'}
+        aria-live='polite'
+        title={statusLabel}
+      >
+        {status === 'saved' ? (
+          <><Check aria-hidden='true' className='h-3.5 w-3.5 shrink-0' /> <span className='truncate'>{statusLabel}</span></>
+        ) : (
+          <span className='truncate'>{statusLabel}</span>
+        )}
+      </p>
+      {isError ? (
+        <CircleAlert aria-hidden='true' className='h-4 w-4 shrink-0 text-destructive md:hidden' />
+      ) : null}
+      <button
+        className='inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-60 md:h-auto md:w-auto md:px-4 md:py-1.5'
+        type='submit'
+        disabled={isSaving || status === 'conflict'}
+        aria-label='Terminer'
+        title='Terminer'
+      >
+        <Check aria-hidden='true' className='h-4 w-4 md:hidden' />
+        <span className='hidden md:inline'>Terminer</span>
+      </button>
+    </>
+  )
+
   return (
     <form className='mx-auto max-w-2xl' onSubmit={finishEditing} noValidate>
-      <div className='-mt-2 mb-5 flex items-center justify-between'>
+      <div className='-mt-2 mb-5'>
         <Link className='inline-flex items-center gap-1.5 rounded-full py-1.5 pr-3 font-sans text-sm text-muted-foreground transition hover:text-foreground' href={`/journal/${entry.id}`}>
           <ArrowLeft aria-hidden='true' className='h-4 w-4' />
           Retour
         </Link>
-
-        <div className='flex items-center gap-3'>
-          <p
-            className={`inline-flex items-center gap-1.5 font-sans text-xs ${isError ? 'text-destructive' : status === 'saved' ? 'text-primary' : 'text-muted-foreground'}`}
-            role={isError ? 'alert' : 'status'}
-            aria-live='polite'
-          >
-            {status === 'saved' ? (
-              <><Check aria-hidden='true' className='h-3.5 w-3.5' /> {statusLabel}</>
-            ) : (
-              statusLabel
-            )}
-          </p>
-          <button className='rounded-full bg-primary px-4 py-1.5 font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-60' type='submit' disabled={isSaving || status === 'conflict'}>
-            Terminer
-          </button>
-        </div>
       </div>
 
       <header className='mb-6'>
@@ -119,7 +132,12 @@ export const EntryForm = ({ entry }: EntryFormProps) => {
         </div>
       </header>
 
-      <RichTextEditor initialContent={entry.content} onChange={setContent} />
+      <RichTextEditor
+        entryId={entry.id}
+        initialContent={entry.content}
+        onChange={setContent}
+        toolbarActions={renderEditorActions()}
+      />
       {contentError ? <p className='font-sans text-sm text-destructive'>{contentError}</p> : null}
       <p className='mt-8 text-center font-serif text-sm italic text-muted-foreground/70'>Écris, glisse une photo, écris encore. L&apos;ordre t&apos;appartient.</p>
     </form>

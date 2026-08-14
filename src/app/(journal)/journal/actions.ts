@@ -6,7 +6,11 @@ import { notFound, redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/require-session'
 import { createEntry, deleteEntry, updateEntry } from '@/lib/entries/dal'
 import { updateEntrySchema } from '@/lib/entries/validation'
-import { getTiptapPlainText, parseSerializedTiptapDocument } from '@/lib/tiptap/document'
+import {
+  getTiptapMediaIds,
+  getTiptapPlainText,
+  parseSerializedTiptapDocument,
+} from '@/lib/tiptap/document'
 
 export type UpdateEntryState = {
   status: 'success' | 'error' | 'conflict'
@@ -58,15 +62,24 @@ export const updateEntryAction = async (
     }
   }
 
-  const entry = await updateEntry(session.user.id, entryId, {
+  const updateResult = await updateEntry(session.user.id, entryId, {
     title: result.data.title || null,
     entryDate: result.data.entryDate,
     content,
     plainText: getTiptapPlainText(content),
+    mediaIds: getTiptapMediaIds(content),
     expectedRevision: result.data.revision,
   })
 
-  if (!entry) {
+  if (updateResult.status === 'invalid-media') {
+    return {
+      status: 'error',
+      message: 'Une photo de cette entree est invalide. Recharge la page.',
+      fieldErrors: { content: ['Une photo de cette entree est invalide.'] },
+    }
+  }
+
+  if (updateResult.status === 'conflict') {
     return {
       status: 'conflict',
       message: 'Cette entrée a changé dans un autre onglet. Recharge la page.',
@@ -80,7 +93,7 @@ export const updateEntryAction = async (
   return {
     status: 'success',
     message: 'Enregistré',
-    revision: entry.revision,
+    revision: updateResult.entry.revision,
   }
 }
 

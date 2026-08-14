@@ -209,6 +209,61 @@
   font-weight: 650;
 }
 
+.photo-group-node {
+  position: relative;
+  margin-block: 0.25rem;
+}
+
+.photo-group-drag-handle {
+  position: absolute;
+  z-index: 2;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  background: color-mix(in oklch, var(--popover) 95%, transparent);
+  box-shadow: 0 6px 20px oklch(0.26 0.018 150 / 0.08);
+}
+
+.photo-group-drag-handle:active {
+  cursor: grabbing;
+}
+
+.photo-group-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.photo-group-frame {
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: var(--muted);
+}
+
+.photo-group-caption {
+  margin-top: 0.4rem;
+  padding-left: 0.125rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-instrument-sans), ui-sans-serif, sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 640px) {
+  .photo-group-grid {
+    gap: 0.75rem;
+  }
+}
+
 dialog::backdrop {
   background: oklch(0.26 0.018 150 / 0.2);
   backdrop-filter: blur(2px);

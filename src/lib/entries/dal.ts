@@ -1,10 +1,20 @@
 import { randomUUID } from 'node:crypto'
 
-import { and, desc, eq, lt, or, sql } from 'drizzle-orm'
+import {
+  and,
+  desc,
+  eq,
+  inArray,
+  isNull,
+  lt,
+  notInArray,
+  or,
+  sql,
+} from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '@/db/client'
-import { entries } from '@/db/schema'
+import { entries, media } from '@/db/schema'
 
 const emptyDocument = {
   type: 'doc',
@@ -142,31 +152,98 @@ type UpdateEntryValues = {
   entryDate: string
   content: Record<string, unknown>
   plainText: string
+  mediaIds: string[]
   expectedRevision: number
 }
+
+type UpdateEntryResult =
+  | { status: 'updated'; entry: typeof entries.$inferSelect }
+  | { status: 'conflict' }
+  | { status: 'invalid-media' }
 
 export const updateEntry = async (
   ownerId: string,
   entryId: string,
   values: UpdateEntryValues,
-) => {
-  const { expectedRevision, ...entryValues } = values
-  const [entry] = await db
-    .update(entries)
-    .set({
-      ...entryValues,
-      revision: sql`${entries.revision} + 1`,
-    })
-    .where(
-      and(
-        eq(entries.id, entryId),
-        eq(entries.ownerId, ownerId),
-        eq(entries.revision, expectedRevision),
-      ),
-    )
-    .returning()
+): Promise<UpdateEntryResult> => {
+  const {
+    expectedRevision,
+    mediaIds,
+    ...entryValues
+  } = values
 
-  return entry ?? null
+  return db.transaction(async (transaction): Promise<UpdateEntryResult> => {
+    if (mediaIds.length) {
+      const readyMedia = await transaction
+        .select({ id: media.id })
+        .from(media)
+        .where(
+          and(
+            eq(media.ownerId, ownerId),
+            eq(media.entryId, entryId),
+            eq(media.status, 'ready'),
+            inArray(media.id, mediaIds),
+          ),
+        )
+
+      if (readyMedia.length !== mediaIds.length) {
+        return { status: 'invalid-media' }
+      }
+    }
+
+    const [entry] = await transaction
+      .update(entries)
+      .set({
+        ...entryValues,
+        coverMediaId: mediaIds[0] ?? null,
+        revision: sql`${entries.revision} + 1`,
+      })
+      .where(
+        and(
+          eq(entries.id, entryId),
+          eq(entries.ownerId, ownerId),
+          eq(entries.revision, expectedRevision),
+        ),
+      )
+      .returning()
+
+    if (!entry) {
+      return { status: 'conflict' }
+    }
+
+    if (mediaIds.length) {
+      await transaction
+        .update(media)
+        .set({ detachedAt: null })
+        .where(
+          and(
+            eq(media.ownerId, ownerId),
+            eq(media.entryId, entryId),
+            eq(media.status, 'ready'),
+            inArray(media.id, mediaIds),
+          ),
+        )
+    }
+
+    const removedMediaCondition = mediaIds.length
+      ? notInArray(media.id, mediaIds)
+      : undefined
+
+    await transaction
+      .update(media)
+      .set({ detachedAt: new Date() })
+      .where(
+        and(
+          eq(media.ownerId, ownerId),
+          eq(media.entryId, entryId),
+          eq(media.status, 'ready'),
+          isNull(media.detachedAt),
+          removedMediaCondition,
+        ),
+      )
+
+    return { status: 'updated', entry }
+  })
 }
 
 export const deleteEntry = async (ownerId: string, entryId: string) => {
