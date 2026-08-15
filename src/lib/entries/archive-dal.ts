@@ -68,6 +68,7 @@ export const listArchiveMonthDays = async (
     .select({
       entryDate: entries.entryDate,
       entryCount: sql<number>`count(*)::int`,
+      coverMediaId: sql<string | null>`max(${entries.coverMediaId}::text) filter (where ${entries.coverMediaId} is not null)`,
     })
     .from(entries)
     .where(

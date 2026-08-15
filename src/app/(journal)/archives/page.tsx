@@ -224,9 +224,28 @@ const ArchivesPage = async ({
 
                 return (
                   <li key={entry.id}>
-                    <Link href={`/journal/${entry.id}`} className='group flex aspect-square flex-col justify-between rounded-xl border border-border bg-secondary/50 p-3 transition hover:border-primary/30'>
-                      <span className='font-serif text-2xl font-medium text-foreground'>{formatCivilDayNumber(entry.entryDate)}</span>
-                      <span className='line-clamp-3 font-sans text-xs leading-relaxed text-muted-foreground'>{entry.title ?? excerpt ?? formatCivilWeekday(entry.entryDate)}</span>
+                    <Link href={`/journal/${entry.id}`} className='group block'>
+                      {entry.coverMediaId ? (
+                        <div className='relative aspect-square overflow-hidden rounded-xl bg-muted'>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`/api/media/${entry.coverMediaId}/thumb`}
+                            alt=''
+                            loading='lazy'
+                            className='h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105'
+                          />
+                          <span className='absolute inset-x-0 bottom-0 bg-linear-to-t from-foreground/70 to-transparent p-2.5 pt-8'>
+                            <span className='font-serif text-sm font-medium text-background'>
+                              {formatCivilDayNumber(entry.entryDate)} · {entry.title ?? 'Sans titre'}
+                            </span>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className='flex aspect-square flex-col justify-between rounded-xl border border-border bg-secondary/50 p-3 transition group-hover:border-primary/30'>
+                          <span className='font-serif text-2xl font-medium text-foreground'>{formatCivilDayNumber(entry.entryDate)}</span>
+                          <span className='line-clamp-3 font-sans text-xs leading-relaxed text-muted-foreground'>{entry.title ?? excerpt ?? formatCivilWeekday(entry.entryDate)}</span>
+                        </div>
+                      )}
                     </Link>
                   </li>
                 )

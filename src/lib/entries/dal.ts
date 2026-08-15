@@ -15,6 +15,12 @@ import { z } from 'zod'
 
 import { db } from '@/db/client'
 import { entries, media } from '@/db/schema'
+import {
+  parsePhotoGroupAttrs,
+  parseTiptapDocument,
+  type PhotoGroupItem,
+  type TiptapNode,
+} from '@/lib/tiptap/document'
 
 const emptyDocument = {
   type: 'doc',
@@ -22,6 +28,27 @@ const emptyDocument = {
 }
 
 const entriesPageSize = 10
+
+const getEntryMediaItems = (content: Record<string, unknown>) => {
+  const document = parseTiptapDocument(content)
+
+  if (!document) return []
+
+  const mediaItems: PhotoGroupItem[] = []
+  const visitNode = (node: TiptapNode) => {
+    if (node.type === 'photoGroup') {
+      const attrs = parsePhotoGroupAttrs(node.attrs)
+
+      if (attrs) mediaItems.push(...attrs.items)
+    }
+
+    node.content?.forEach(visitNode)
+  }
+
+  visitNode(document)
+
+  return mediaItems
+}
 
 const entriesCursorSchema = z.object({
   entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -139,7 +166,10 @@ export const listEntriesPage = async (ownerId: string, cursor?: string) => {
   const lastEntry = pageEntries.at(-1)
 
   return {
-    entries: pageEntries,
+    entries: pageEntries.map((entry) => ({
+      ...entry,
+      mediaItems: getEntryMediaItems(entry.content),
+    })),
     nextCursor:
       rows.length > entriesPageSize && lastEntry
         ? encodeEntriesCursor(lastEntry)

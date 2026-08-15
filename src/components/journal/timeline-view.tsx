@@ -16,6 +16,10 @@ type TimelineEntry = {
   title: string | null
   entryDate: string
   plainText: string
+  mediaItems: Array<{
+    mediaId: string
+    span: 2 | 3 | 4 | 6
+  }>
   createdAt: Date
 }
 
@@ -38,6 +42,52 @@ const formatEntryTime = (date: Date) => new Intl.DateTimeFormat('fr-FR', {
   minute: '2-digit',
   hour12: false,
 }).format(date).replace(':', 'h')
+
+const TimelinePhotos = ({
+  mediaItems,
+  priority,
+}: {
+  mediaItems: TimelineEntry['mediaItems']
+  priority: boolean
+}) => {
+  if (mediaItems.length === 1) {
+    return (
+      <div className='mt-3 grid grid-cols-6'>
+        <div
+          className='aspect-16/10 overflow-hidden rounded-xl bg-muted'
+          style={{ gridColumn: `span ${mediaItems[0].span}` }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/media/${mediaItems[0].mediaId}/display`}
+            alt=''
+            loading={priority ? 'eager' : 'lazy'}
+            className='h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]'
+          />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className='mt-3 grid grid-cols-3 gap-1.5'>
+      {mediaItems.slice(0, 3).map((item) => (
+        <div
+          className='aspect-square overflow-hidden rounded-lg bg-muted'
+          key={item.mediaId}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/media/${item.mediaId}/thumb`}
+            alt=''
+            loading={priority ? 'eager' : 'lazy'}
+            className='h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]'
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export const TimelineView = ({ entries, nextCursor, cursor, today }: TimelineViewProps) => (
   <main>
@@ -101,7 +151,18 @@ export const TimelineView = ({ entries, nextCursor, cursor, today }: TimelineVie
                     <div className='min-w-0'>
                       {entry.title ? <h2 className='font-serif text-xl font-medium leading-snug text-foreground transition-colors group-hover:text-primary sm:text-2xl text-balance'>{entry.title}</h2> : null}
                       {excerpt ? <p className={`mt-1.5 font-sans text-[0.95rem] leading-relaxed text-muted-foreground ${entry.title ? 'line-clamp-2' : 'line-clamp-3'}`}>{excerpt}</p> : null}
-                      <div className='mt-2.5 flex items-center gap-2 font-sans text-xs text-muted-foreground/80'><span>{formatEntryTime(entry.createdAt)}</span></div>
+                      {entry.mediaItems.length ? (
+                        <TimelinePhotos mediaItems={entry.mediaItems} priority={index === 0} />
+                      ) : null}
+                      <div className='mt-2.5 flex items-center gap-2 font-sans text-xs text-muted-foreground/80'>
+                        <span>{formatEntryTime(entry.createdAt)}</span>
+                        {entry.mediaItems.length ? (
+                          <>
+                            <span aria-hidden='true'>·</span>
+                            <span>{entry.mediaItems.length} photo{entry.mediaItems.length > 1 ? 's' : ''}</span>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                   </article>
                 </Link>

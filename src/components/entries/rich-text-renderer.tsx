@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { PhotoLightbox } from '@/components/entries/photo-lightbox'
 import {
   parsePhotoGroupAttrs,
   type TiptapMark,
@@ -30,12 +31,9 @@ const renderPhotoGroup = (node: TiptapNode, key: string) => {
           className='min-w-0'
         >
           <div className='photo-group-frame'>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/media/${item.mediaId}/display`}
-              alt={item.caption ?? ''}
-              loading='lazy'
-              className='block h-auto w-full'
+            <PhotoLightbox
+              mediaId={item.mediaId}
+              caption={item.caption}
             />
           </div>
           {item.caption ? (
