@@ -1,5 +1,11 @@
+import { existsSync } from 'node:fs'
+
 import { count } from 'drizzle-orm'
 import { z } from 'zod'
+
+if (existsSync('.env.local')) {
+  process.loadEnvFile('.env.local')
+}
 
 const bootstrapEnv = z
   .object({

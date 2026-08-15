@@ -13,7 +13,7 @@
     "db:studio": "drizzle-kit studio",
     "db:check": "drizzle-kit check",
     "media:cleanup": "tsx scripts/cleanup-orphans.ts",
-    "auth:bootstrap": "tsx --env-file=.env.local scripts/bootstrap-owner.ts",
+    "auth:bootstrap": "tsx scripts/bootstrap-owner.ts",
     "auth:reset-password": "tsx scripts/reset-owner-password.ts"
   },
   "dependencies": {

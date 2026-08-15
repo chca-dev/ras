@@ -1,3 +1,4 @@
+import { Origami } from 'lucide-react'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
@@ -22,7 +23,7 @@ const LoginPage = async () => {
       <section className='relative flex w-full max-w-sm flex-col items-center' aria-labelledby='login-title'>
         <div className='mb-8 flex flex-col items-center text-center'>
           <span className='mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/8 text-primary glow-soft' aria-hidden='true'>
-            <span className='h-6 w-6 rounded-full border border-current' />
+            <Origami className='h-6 w-6' strokeWidth={1.5} />
           </span>
           <p className='font-serif text-4xl font-medium tracking-tight text-foreground'>RAS.</p>
           <h1 id='login-title' className='mt-3 max-w-[15rem] font-sans text-sm font-normal leading-relaxed text-muted-foreground'>Bon. On en était où&nbsp;?</h1>

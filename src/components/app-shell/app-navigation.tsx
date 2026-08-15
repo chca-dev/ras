@@ -1,6 +1,12 @@
 'use client'
 
-import { CalendarDays, PenLine, ScrollText, Settings } from 'lucide-react'
+import {
+  CalendarDays,
+  Origami,
+  PenLine,
+  ScrollText,
+  Settings,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
@@ -47,7 +53,9 @@ export const AppNavigation = () => {
     <header className='sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-md'>
       <div className='mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6'>
         <Link className='flex items-center gap-2 text-foreground transition hover:opacity-80' href='/journal'>
-          <span className='h-5 w-5 rounded-full border border-primary' aria-hidden='true' />
+          <span className='inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/8 text-primary glow-soft' aria-hidden='true'>
+            <Origami className='h-4 w-4' strokeWidth={1.5} />
+          </span>
           <span className='font-serif text-lg font-medium tracking-tight'>RAS.</span>
         </Link>
 
