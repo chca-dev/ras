@@ -14,7 +14,11 @@ import {
   formatCivilYear,
 } from '@/lib/dates/format-civil-date'
 import { getEntryById } from '@/lib/entries/dal'
-import { createDocumentFromPlainText, parseTiptapDocument } from '@/lib/tiptap/document'
+import {
+  createDocumentFromPlainText,
+  getTiptapMediaIds,
+  parseTiptapDocument,
+} from '@/lib/tiptap/document'
 
 const formatEntryTime = (date: Date) => {
   return new Intl.DateTimeFormat('fr-FR', {
@@ -43,6 +47,9 @@ const EntryPage = async ({
   }
 
   const document = parseTiptapDocument(entry.content) ?? createDocumentFromPlainText(entry.plainText)
+  const hasContent = Boolean(
+    entry.plainText.trim() || getTiptapMediaIds(document).length,
+  )
   const hour = Number(new Intl.DateTimeFormat('fr-FR', {
     timeZone: 'Europe/Paris',
     hour: '2-digit',
@@ -82,7 +89,7 @@ const EntryPage = async ({
           {entry.title ? <h1 className='mt-5 font-serif text-3xl font-medium leading-tight text-foreground text-balance sm:text-4xl'>{entry.title}</h1> : null}
         </header>
 
-        {entry.plainText ? (
+        {hasContent ? (
           <RichTextRenderer content={document.content} />
         ) : (
           <p className='font-serif text-[1.15rem] italic text-muted-foreground'>Rien à signaler, donc.</p>

@@ -6,6 +6,7 @@ import { notFound, redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/require-session'
 import { createEntry, deleteEntry, updateEntry } from '@/lib/entries/dal'
 import { updateEntrySchema } from '@/lib/entries/validation'
+import { deleteMediaDirectories } from '@/lib/media/delete-media-files'
 import {
   getTiptapMediaIds,
   getTiptapPlainText,
@@ -99,11 +100,17 @@ export const updateEntryAction = async (
 
 export const deleteEntryAction = async (entryId: string) => {
   const session = await requireSession()
-  const entry = await deleteEntry(session.user.id, entryId)
+  const deletion = await deleteEntry(session.user.id, entryId)
 
-  if (!entry) {
+  if (!deletion) {
     notFound()
   }
+
+  const mediaRemovalFailures = await deleteMediaDirectories(deletion.mediaIds)
+
+  mediaRemovalFailures.forEach(({ mediaId, code }) => {
+    console.error(`Suppression du média ${mediaId} échouée (${code})`)
+  })
 
   redirect('/journal')
 }

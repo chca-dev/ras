@@ -28,6 +28,7 @@ const emptyDocument = {
 }
 
 const entriesPageSize = 10
+const entryIdSchema = z.uuid()
 
 const getEntryMediaItems = (content: Record<string, unknown>) => {
   const document = parseTiptapDocument(content)
@@ -121,6 +122,8 @@ export const createEntry = async (ownerId: string) => {
 }
 
 export const getEntryById = async (ownerId: string, entryId: string) => {
+  if (!entryIdSchema.safeParse(entryId).success) return null
+
   const [entry] = await db
     .select()
     .from(entries)
@@ -196,6 +199,10 @@ export const updateEntry = async (
   entryId: string,
   values: UpdateEntryValues,
 ): Promise<UpdateEntryResult> => {
+  if (!entryIdSchema.safeParse(entryId).success) {
+    return { status: 'conflict' }
+  }
+
   const {
     expectedRevision,
     mediaIds,
@@ -277,10 +284,42 @@ export const updateEntry = async (
 }
 
 export const deleteEntry = async (ownerId: string, entryId: string) => {
-  const [entry] = await db
-    .delete(entries)
-    .where(and(eq(entries.id, entryId), eq(entries.ownerId, ownerId)))
-    .returning({ id: entries.id })
+  if (!entryIdSchema.safeParse(entryId).success) return null
 
-  return entry ?? null
+  return db.transaction(async (transaction) => {
+    const [ownedEntry] = await transaction
+      .select({ id: entries.id })
+      .from(entries)
+      .where(and(eq(entries.id, entryId), eq(entries.ownerId, ownerId)))
+      .limit(1)
+
+    if (!ownedEntry) return null
+
+    const entryMedia = await transaction
+      .select({ id: media.id })
+      .from(media)
+      .where(
+        and(
+          eq(media.ownerId, ownerId),
+          eq(media.entryId, ownedEntry.id),
+        ),
+      )
+
+    const [deletedEntry] = await transaction
+      .delete(entries)
+      .where(
+        and(
+          eq(entries.id, ownedEntry.id),
+          eq(entries.ownerId, ownerId),
+        ),
+      )
+      .returning({ id: entries.id })
+
+    if (!deletedEntry) return null
+
+    return {
+      entry: deletedEntry,
+      mediaIds: entryMedia.map(({ id }) => id),
+    }
+  })
 }

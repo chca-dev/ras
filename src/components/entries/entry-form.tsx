@@ -139,7 +139,6 @@ export const EntryForm = ({ entry }: EntryFormProps) => {
         toolbarActions={renderEditorActions()}
       />
       {contentError ? <p className='font-sans text-sm text-destructive'>{contentError}</p> : null}
-      <p className='mt-8 text-center font-serif text-sm italic text-muted-foreground/70'>Écris, glisse une photo, écris encore. L&apos;ordre t&apos;appartient.</p>
     </form>
   )
 }

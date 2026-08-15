@@ -113,15 +113,13 @@ export const TimelineView = ({ entries, nextCursor, cursor, today }: TimelineVie
           <span className='h-7 w-7 rounded-full border border-current' />
         </span>
         <h2 className='relative max-w-md font-serif text-2xl font-medium leading-snug text-foreground text-balance sm:text-3xl'>
-          Il ne s&apos;est sûrement rien passé.<br />
-          <span className='text-muted-foreground'>À part tout le reste.</span>
+          Il ne s&apos;est rien passé. Version officielle.
         </h2>
         <DrawnSeparator className='my-7' />
-        <p className='relative mb-7 max-w-xs font-sans text-sm leading-relaxed text-muted-foreground'>Ton journal est encore vierge. La première page est souvent la plus facile.</p>
         <form action={createEntryAction}>
           <button type='submit' className='relative inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110 active:scale-[0.99]'>
             <PenLine className='h-4 w-4' aria-hidden='true' />
-            Écrire ma première entrée
+            Écrire la première entrée
           </button>
         </form>
       </section>
@@ -174,7 +172,7 @@ export const TimelineView = ({ entries, nextCursor, cursor, today }: TimelineVie
 
         <div className='mt-12 flex flex-col items-center gap-4 text-center'>
           <DrawnSeparator />
-          <p className='font-serif text-sm italic text-muted-foreground/80'>Le reste est encore à écrire.</p>
+          <p className='font-serif text-sm italic text-muted-foreground/80'>Fin de la chronologie.</p>
           <div className='flex gap-3'>
             <form action={createEntryAction}>
               <button type='submit' className='inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110'>
