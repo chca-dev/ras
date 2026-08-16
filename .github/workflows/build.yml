@@ -47,10 +47,12 @@ jobs:
           cp -R .next/static artifact/.next/static
           if [ -d public ]; then cp -R public artifact/public; fi
 
+      - name: Create Linux archive
+        run: tar -C artifact -czf ras-standalone.tar.gz .
+
       - name: Upload standalone artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ras-standalone
-          path: artifact
-          include-hidden-files: true
+          name: ras-standalone-tar
+          path: ras-standalone.tar.gz
           retention-days: 7
