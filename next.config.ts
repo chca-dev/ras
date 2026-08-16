@@ -59,6 +59,7 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   reactCompiler: true,
   poweredByHeader: false,
   experimental: {

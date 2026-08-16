@@ -39,3 +39,18 @@ jobs:
 
       - name: Build application
         run: pnpm build
+
+      - name: Prepare standalone artifact
+        run: |
+          mkdir -p artifact/.next
+          cp -R .next/standalone/. artifact/
+          cp -R .next/static artifact/.next/static
+          if [ -d public ]; then cp -R public artifact/public; fi
+
+      - name: Upload standalone artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ras-standalone
+          path: artifact
+          include-hidden-files: true
+          retention-days: 7
