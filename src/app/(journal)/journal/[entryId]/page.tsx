@@ -65,7 +65,7 @@ const EntryPage = async ({
         </Link>
         <div className='flex items-center gap-1'>
           <Link href={`/journal/${entry.id}/edit`} className='inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 font-sans text-sm text-foreground transition hover:border-primary/30'>
-            <Pencil aria-hidden='true' className='h-3.5 w-3.5' /> Modifier
+            <Pencil aria-hidden='true' className='hidden h-3.5 w-3.5 sm:inline-block' /> Modifier
           </Link>
           <DeleteEntryButton entryId={entry.id} compact />
         </div>

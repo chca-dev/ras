@@ -32,7 +32,7 @@ const WriteButton = ({ compact = false }: { compact?: boolean }) => {
   return (
     <button
       className={compact
-        ? '-mt-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition active:scale-95 glow-soft'
+        ? '-mt-2 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition active:scale-95 glow-soft'
         : 'ml-1 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110'}
       type="submit"
       disabled={pending}
@@ -92,7 +92,7 @@ export const AppNavigation = () => {
           </Link>
         </nav>
         <Link
-          className='inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground aria-[current=page]:bg-secondary aria-[current=page]:text-foreground md:hidden'
+          className='hidden'
           href="/settings"
           aria-current={settingsIsActive ? 'page' : undefined}
           aria-label="Réglages"
@@ -103,34 +103,34 @@ export const AppNavigation = () => {
       </div>
 
       <nav className='fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-background/90 backdrop-blur-md md:hidden' aria-label='Navigation principale'>
-        <div className='mx-auto flex max-w-md items-center justify-around px-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2'>
-        {navigationItems.slice(0, 1).map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            className='flex flex-col items-center gap-1 px-3 py-1 font-sans text-[0.65rem] text-muted-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
-            href={href}
-            aria-current={pathname.startsWith(href) ? 'page' : undefined}
-          >
-            <Icon aria-hidden="true" size={21} strokeWidth={1.75} />
-            <span>{label}</span>
-          </Link>
-        ))}
+        <div className='mx-auto grid max-w-md grid-cols-5 items-center px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2'>
+          <div className='col-span-2 flex items-center justify-around gap-0.5'>
+            {navigationItems.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                className='flex flex-col items-center gap-1 px-2 py-1 font-sans text-[0.65rem] text-muted-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
+                href={href}
+                aria-current={pathname.startsWith(href) ? 'page' : undefined}
+              >
+                <Icon aria-hidden='true' size={21} strokeWidth={1.75} />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </div>
 
-        <form className='grid justify-items-center' action={createEntryAction}>
-          <WriteButton compact />
-        </form>
+          <form className='col-start-3 grid justify-items-center' action={createEntryAction}>
+            <WriteButton compact />
+          </form>
 
-        {navigationItems.slice(1).map(({ href, label, icon: Icon }) => (
           <Link
-            key={href}
-            className='flex flex-col items-center gap-1 px-3 py-1 font-sans text-[0.65rem] text-muted-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
-            href={href}
-            aria-current={pathname.startsWith(href) ? 'page' : undefined}
+            className='col-start-5 flex flex-col items-center gap-1 justify-self-center px-2 py-1 font-sans text-[0.65rem] text-muted-foreground aria-[current=page]:text-foreground [&[aria-current=page]_svg]:text-primary'
+            href='/settings'
+            aria-current={settingsIsActive ? 'page' : undefined}
+            aria-label='Réglages'
           >
-            <Icon aria-hidden="true" size={21} strokeWidth={1.75} />
-            <span>{label}</span>
+            <Settings aria-hidden='true' size={21} strokeWidth={1.75} />
+            <span>Réglages</span>
           </Link>
-        ))}
         </div>
       </nav>
     </header>

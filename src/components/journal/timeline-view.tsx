@@ -170,7 +170,7 @@ export const TimelineView = ({ entries, nextCursor, cursor, today }: TimelineVie
           })}
         </ol>
 
-        <div className='mt-12 flex flex-col items-center gap-4 text-center'>
+        <div className='mt-8 flex flex-col items-center gap-4 text-center sm:mt-12'>
           <DrawnSeparator />
           <p className='font-serif text-sm italic text-muted-foreground/80'>Fin de la chronologie.</p>
           <div className='flex gap-3'>
