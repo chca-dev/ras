@@ -46,6 +46,10 @@ jobs:
           cp -R .next/standalone/. artifact/
           cp -R .next/static artifact/.next/static
           if [ -d public ]; then cp -R public artifact/public; fi
+          mkdir -p artifact/node_modules/@swc
+          if [ ! -e artifact/node_modules/@swc/helpers ]; then
+            ln -s ../.pnpm/node_modules/@swc/helpers artifact/node_modules/@swc/helpers
+          fi
 
       - name: Create Linux archive
         run: tar -C artifact -czf ras-standalone.tar.gz .
