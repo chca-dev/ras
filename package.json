@@ -14,6 +14,7 @@
     "db:check": "drizzle-kit check",
     "media:cleanup": "tsx scripts/cleanup-orphans.ts",
     "auth:bootstrap": "tsx scripts/bootstrap-owner.ts",
+    "auth:create-user": "tsx scripts/create-user.ts",
     "auth:reset-password": "tsx scripts/reset-owner-password.ts"
   },
   "dependencies": {

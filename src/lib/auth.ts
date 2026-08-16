@@ -11,6 +11,10 @@ const bootstrapEnabled =
   env.AUTH_BOOTSTRAP_ENABLED &&
   process.env.npm_lifecycle_event === 'auth:bootstrap'
 
+const controlledUserCreationEnabled =
+  process.env.AUTH_USER_CREATION_ENABLED === 'true' &&
+  process.env.npm_lifecycle_event === 'auth:create-user'
+
 export const auth = betterAuth({
   appName: env.NEXT_PUBLIC_APP_NAME,
   baseURL: env.BETTER_AUTH_URL,
@@ -21,7 +25,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    disableSignUp: !bootstrapEnabled,
+    disableSignUp: !(bootstrapEnabled || controlledUserCreationEnabled),
     autoSignIn: false,
   },
   databaseHooks: {
@@ -32,7 +36,7 @@ export const auth = betterAuth({
             .select({ value: count() })
             .from(schema.user)
 
-          if (existingUsers.value !== 0) {
+          if (existingUsers.value !== 0 && !controlledUserCreationEnabled) {
             throw new APIError('BAD_REQUEST', {
               message: 'Signup is disabled',
             })
