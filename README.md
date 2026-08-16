@@ -21,6 +21,15 @@ The project is designed for a single owner: public registration is disabled, jou
 - Better Auth
 - Sharp and Zod
 
+## Deployment
+
+Every push to `main` builds a Linux standalone artifact with GitHub Actions.
+The artifact is uploaded for short-term retention and deployed automatically
+to Alwaysdata through SSH. Runtime secrets and database configuration are
+provided through GitHub Actions and Alwaysdata environment variables.
+
 ## Status
 
-RAS. is an active work in progress. The core journal experience is implemented; automated tests, production hardening, and deployment documentation are planned before the first production release.
+RAS. is an active work in progress. The core journal experience is implemented
+and deployed, while automated tests, production hardening, and some product
+details remain on the roadmap.

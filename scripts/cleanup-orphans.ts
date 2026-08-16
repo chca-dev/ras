@@ -57,7 +57,7 @@ const main = async () => {
   const [
     { db, postgresClient },
     { media },
-    { mediaRoot, resolveMediaKey },
+    { resolveMediaKey },
   ] = await Promise.all([
     import('../src/db/client'),
     import('../src/db/schema/media'),

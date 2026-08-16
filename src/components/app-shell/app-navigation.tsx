@@ -34,7 +34,7 @@ const WriteButton = ({ compact = false }: { compact?: boolean }) => {
       className={compact
         ? '-mt-2 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition active:scale-95 glow-soft'
         : 'ml-1 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 font-sans text-sm font-medium text-primary-foreground transition hover:brightness-110'}
-      type="submit"
+      type='submit'
       disabled={pending}
     >
       <PenLine aria-hidden='true' className={compact ? 'h-6 w-6' : 'h-4 w-4'} />
@@ -72,7 +72,7 @@ export const AppNavigation = () => {
                 href={href}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <Icon aria-hidden="true" size={19} strokeWidth={1.75} />
+                <Icon aria-hidden='true' size={19} strokeWidth={1.75} />
                 <span>{label}</span>
               </Link>
             )
@@ -84,21 +84,13 @@ export const AppNavigation = () => {
 
           <Link
             className='inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground aria-[current=page]:bg-secondary aria-[current=page]:text-foreground'
-            href="/settings"
+            href='/settings'
             aria-current={settingsIsActive ? 'page' : undefined}
-            aria-label="Réglages"
+            aria-label='Réglages'
           >
-            <Settings aria-hidden="true" size={21} strokeWidth={1.75} />
+            <Settings aria-hidden='true' size={21} strokeWidth={1.75} />
           </Link>
         </nav>
-        <Link
-          className='hidden'
-          href="/settings"
-          aria-current={settingsIsActive ? 'page' : undefined}
-          aria-label="Réglages"
-        >
-          <Settings aria-hidden="true" size={22} strokeWidth={1.75} />
-        </Link>
         </div>
       </div>
 
