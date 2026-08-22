@@ -53,4 +53,3 @@ export const entries = pgTable(
 )
 
 export type Entry = typeof entries.$inferSelect
-export type NewEntry = typeof entries.$inferInsert

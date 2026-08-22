@@ -2,6 +2,7 @@ import { X } from 'lucide-react'
 import Link from 'next/link'
 
 import { LogoutButton } from '@/components/auth/logout-button'
+import { ThemeToggle } from '@/components/settings/theme-toggle'
 
 export const SettingsPanel = ({ email }: { email: string }) => (
   <div className='fixed inset-0 z-40 flex items-end justify-center sm:items-start sm:justify-end sm:p-4'>
@@ -27,6 +28,14 @@ export const SettingsPanel = ({ email }: { email: string }) => (
             <h2 id='install-heading' className='font-sans text-sm font-medium text-foreground'>Installer RAS.</h2>
             <p className='font-sans text-xs text-muted-foreground'>Ajouter le journal à l’écran d’accueil.</p>
           </div>
+        </section>
+
+        <section className='flex items-center justify-between gap-4 py-3' aria-labelledby='theme-heading'>
+          <div>
+            <h2 id='theme-heading' className='font-sans text-sm font-medium text-foreground'>Mode nuit</h2>
+            <p className='font-sans text-xs text-muted-foreground'>Charbon, orange et bleu pétrole.</p>
+          </div>
+          <ThemeToggle />
         </section>
 
         <section className='py-3' aria-labelledby='session-heading'>

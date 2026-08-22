@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Fraunces, Instrument_Sans } from 'next/font/google'
+import { cookies } from 'next/headers'
 import './design2.css'
 
 const interfaceFont = Instrument_Sans({
@@ -29,21 +30,33 @@ export const metadata: Metadata = {
   },
 }
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-  themeColor: '#F3F0E7',
-  colorScheme: 'light',
+const getIsDarkTheme = async () => {
+  const cookieStore = await cookies()
+
+  return cookieStore.get('ras-theme')?.value === 'dark'
 }
 
-const RootLayout = ({
+export const generateViewport = async (): Promise<Viewport> => {
+  const isDark = await getIsDarkTheme()
+
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+    themeColor: isDark ? '#323339' : '#fbfbfb',
+    colorScheme: 'light dark',
+  }
+}
+
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) => {
+  const isDark = await getIsDarkTheme()
+
   return (
-    <html lang="fr">
+    <html lang='fr' className={isDark ? 'dark' : undefined} suppressHydrationWarning>
       <body
         className={`${interfaceFont.variable} ${displayFont.variable}`}
       >

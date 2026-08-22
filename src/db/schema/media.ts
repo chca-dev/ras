@@ -61,4 +61,3 @@ export const media = pgTable(
 )
 
 export type Media = typeof media.$inferSelect
-export type NewMedia = typeof media.$inferInsert
