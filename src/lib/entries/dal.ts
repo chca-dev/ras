@@ -2,8 +2,10 @@ import { randomUUID } from 'node:crypto'
 
 import {
   and,
+  asc,
   desc,
   eq,
+  gt,
   inArray,
   isNull,
   lt,
@@ -131,6 +133,64 @@ export const getEntryById = async (ownerId: string, entryId: string) => {
     .limit(1)
 
   return entry ?? null
+}
+
+export const getAdjacentEntries = async (
+  ownerId: string,
+  entry: Pick<typeof entries.$inferSelect, 'id' | 'entryDate' | 'createdAt'>,
+) => {
+  const olderCondition = or(
+    lt(entries.entryDate, entry.entryDate),
+    and(
+      eq(entries.entryDate, entry.entryDate),
+      lt(entries.createdAt, entry.createdAt),
+    ),
+    and(
+      eq(entries.entryDate, entry.entryDate),
+      eq(entries.createdAt, entry.createdAt),
+      lt(entries.id, entry.id),
+    ),
+  )
+  const newerCondition = or(
+    gt(entries.entryDate, entry.entryDate),
+    and(
+      eq(entries.entryDate, entry.entryDate),
+      gt(entries.createdAt, entry.createdAt),
+    ),
+    and(
+      eq(entries.entryDate, entry.entryDate),
+      eq(entries.createdAt, entry.createdAt),
+      gt(entries.id, entry.id),
+    ),
+  )
+
+  const [olderEntries, newerEntries] = await Promise.all([
+    db
+      .select({ id: entries.id })
+      .from(entries)
+      .where(and(eq(entries.ownerId, ownerId), olderCondition))
+      .orderBy(
+        desc(entries.entryDate),
+        desc(entries.createdAt),
+        desc(entries.id),
+      )
+      .limit(1),
+    db
+      .select({ id: entries.id })
+      .from(entries)
+      .where(and(eq(entries.ownerId, ownerId), newerCondition))
+      .orderBy(
+        asc(entries.entryDate),
+        asc(entries.createdAt),
+        asc(entries.id),
+      )
+      .limit(1),
+  ])
+
+  return {
+    previousEntry: olderEntries[0] ?? null,
+    nextEntry: newerEntries[0] ?? null,
+  }
 }
 
 export const listEntriesPage = async (ownerId: string, cursor?: string) => {
